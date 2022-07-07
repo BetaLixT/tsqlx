@@ -138,6 +138,43 @@ func (trDB *TracedDB) Exec(
 	return res, err
 }
 
+func (trDB *TracedDB) NamedExec(
+	query string,
+	arg interface{},
+) (sql.Result, error) {
+
+	start := time.Now()
+	res, err := trDB.DB.NamedExec(query, arg)
+	end := time.Now()
+	if err != nil {
+		trDB.tracer.TraceDependency(
+			"",
+			trDB.DriverName(),
+			trDB.serviceName,
+			"Get",
+			false,
+			start,
+			end,
+			map[string]string {
+				"error": err.Error(),
+				"query": query,
+			},
+		)
+	} else {
+		trDB.tracer.TraceDependency(
+			"",
+			trDB.DriverName(),
+			trDB.serviceName,
+			"Get",
+			true,
+			start,
+			end,
+			nil,
+		)
+	}
+	return res, err
+}
+
 func (db *TracedDB) Beginx() (*TracedTx, error) {
 	tx, err := db.DB.Beginx()
 	return &TracedTx{

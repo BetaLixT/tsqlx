@@ -124,3 +124,40 @@ func (tx *TracedTx) Exec(
 	}
 	return res, err
 }
+
+func (tx *TracedTx) NamedExec(
+	query string,
+	arg interface{},
+) (sql.Result, error) {
+
+	start := time.Now()
+	res, err := tx.Tx.NamedExec(query, arg)
+	end := time.Now()
+	if err != nil {
+		tx.tracer.TraceDependency(
+			"",
+			tx.DriverName(),
+			tx.serviceName,
+			"Get",
+			false,
+			start,
+			end,
+			map[string]string {
+				"error": err.Error(),
+				"query": query,
+			},
+		)
+	} else {
+		tx.tracer.TraceDependency(
+			"",
+			tx.DriverName(),
+			tx.serviceName,
+			"Get",
+			true,
+			start,
+			end,
+			nil,
+		)
+	}
+	return res, err
+}
