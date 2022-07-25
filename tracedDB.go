@@ -1,9 +1,10 @@
-
 package tsqlx
 
 import (
+	"context"
 	"database/sql"
 	"time"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -27,6 +28,7 @@ func NewTracedDB(
 }
 
 func (trDB *TracedDB) Get(
+	ctx context.Context,
 	dest interface{},
 	query string,
 	args ...interface{},
@@ -36,6 +38,7 @@ func (trDB *TracedDB) Get(
 	end := time.Now()
 	if err != nil {
 		trDB.tracer.TraceDependency(
+			ctx,
 			"",
 			trDB.DriverName(),
 			trDB.serviceName,
@@ -50,6 +53,7 @@ func (trDB *TracedDB) Get(
 		)
 	} else {
 		trDB.tracer.TraceDependency(
+			ctx,
 			"",
 			trDB.DriverName(),
 			trDB.serviceName,
@@ -63,7 +67,8 @@ func (trDB *TracedDB) Get(
 	return err
 }
 
-func (trDB *TracedDB) Select(
+func (trDB *TracedDB) Select(	
+	ctx context.Context,
 	dest interface{},
 	query string,
 	args ...interface{},
@@ -74,6 +79,7 @@ func (trDB *TracedDB) Select(
 	end := time.Now()
 	if err != nil {
 		trDB.tracer.TraceDependency(
+			ctx,
 			"",
 			trDB.DriverName(),
 			trDB.serviceName,
@@ -88,6 +94,7 @@ func (trDB *TracedDB) Select(
 		)
 	} else {
 		trDB.tracer.TraceDependency(
+			ctx,
 			"",
 			trDB.DriverName(),
 			trDB.serviceName,
@@ -102,6 +109,7 @@ func (trDB *TracedDB) Select(
 }
 
 func (trDB *TracedDB) Exec(
+	ctx context.Context,
 	query string,
 	args ...interface{},
 ) (sql.Result, error) {
@@ -111,6 +119,7 @@ func (trDB *TracedDB) Exec(
 	end := time.Now()
 	if err != nil {
 		trDB.tracer.TraceDependency(
+			ctx,
 			"",
 			trDB.DriverName(),
 			trDB.serviceName,
@@ -125,6 +134,7 @@ func (trDB *TracedDB) Exec(
 		)
 	} else {
 		trDB.tracer.TraceDependency(
+			ctx,
 			"",
 			trDB.DriverName(),
 			trDB.serviceName,
@@ -139,6 +149,7 @@ func (trDB *TracedDB) Exec(
 }
 
 func (trDB *TracedDB) NamedExec(
+	ctx context.Context,
 	query string,
 	arg interface{},
 ) (sql.Result, error) {
@@ -148,6 +159,7 @@ func (trDB *TracedDB) NamedExec(
 	end := time.Now()
 	if err != nil {
 		trDB.tracer.TraceDependency(
+			ctx,
 			"",
 			trDB.DriverName(),
 			trDB.serviceName,
@@ -162,6 +174,7 @@ func (trDB *TracedDB) NamedExec(
 		)
 	} else {
 		trDB.tracer.TraceDependency(
+			ctx,
 			"",
 			trDB.DriverName(),
 			trDB.serviceName,

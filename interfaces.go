@@ -1,11 +1,13 @@
 package tsqlx
 
 import (
+	"context"
 	"time"
 )
 
 type ITracer interface {
 	TraceDependency(
+		ctx context.Context,
 		spanId string,
 		dependencyType string,
 		serviceName string,

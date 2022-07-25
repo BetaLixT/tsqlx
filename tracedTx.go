@@ -1,7 +1,7 @@
 package tsqlx
 
-
 import (
+	"context"
 	"database/sql"
 	"time"
 
@@ -16,6 +16,7 @@ type TracedTx struct {
 
 
 func (tx *TracedTx) Get(
+	ctx context.Context,
 	dest interface{},
 	query string,
 	args ...interface{},
@@ -25,6 +26,7 @@ func (tx *TracedTx) Get(
 	end := time.Now()
 	if err != nil {
 		tx.tracer.TraceDependency(
+			ctx,
 			"",
 			tx.DriverName(),
 			tx.serviceName,
@@ -39,6 +41,7 @@ func (tx *TracedTx) Get(
 		)
 	} else {
 		tx.tracer.TraceDependency(
+			ctx,
 			"",
 			tx.DriverName(),
 			tx.serviceName,
@@ -53,6 +56,7 @@ func (tx *TracedTx) Get(
 }
 
 func (tx *TracedTx) Select(
+	ctx context.Context,
 	dest interface{},
 	query string,
 	args ...interface{},
@@ -62,6 +66,7 @@ func (tx *TracedTx) Select(
 	end := time.Now()
 	if err != nil {
 		tx.tracer.TraceDependency(
+			ctx,
 			"",
 			tx.DriverName(),
 			tx.serviceName,
@@ -76,6 +81,7 @@ func (tx *TracedTx) Select(
 		)
 	} else {
 		tx.tracer.TraceDependency(
+		  ctx,
 			"",
 			tx.DriverName(),
 			tx.serviceName,
@@ -90,6 +96,7 @@ func (tx *TracedTx) Select(
 }
 
 func (tx *TracedTx) Exec(
+	ctx context.Context,
 	query string,
 	args ...interface{},
 ) (sql.Result, error) {
@@ -98,6 +105,7 @@ func (tx *TracedTx) Exec(
 	end := time.Now()
 	if err != nil {
 		tx.tracer.TraceDependency(
+			ctx,
 			"",
 			tx.DriverName(),
 			tx.serviceName,
@@ -112,6 +120,7 @@ func (tx *TracedTx) Exec(
 		)
 	} else {
 		tx.tracer.TraceDependency(
+			ctx,
 			"",
 			tx.DriverName(),
 			tx.serviceName,
@@ -126,6 +135,7 @@ func (tx *TracedTx) Exec(
 }
 
 func (tx *TracedTx) NamedExec(
+	ctx context.Context,
 	query string,
 	arg interface{},
 ) (sql.Result, error) {
@@ -135,6 +145,7 @@ func (tx *TracedTx) NamedExec(
 	end := time.Now()
 	if err != nil {
 		tx.tracer.TraceDependency(
+			ctx,
 			"",
 			tx.DriverName(),
 			tx.serviceName,
@@ -149,6 +160,7 @@ func (tx *TracedTx) NamedExec(
 		)
 	} else {
 		tx.tracer.TraceDependency(
+			ctx,
 			"",
 			tx.DriverName(),
 			tx.serviceName,
