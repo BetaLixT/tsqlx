@@ -3,6 +3,8 @@ package tsqlx
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -12,6 +14,7 @@ type TracedDB struct {
 	*sqlx.DB
 	tracer      ITracer
 	serviceName string
+	verbose     bool
 }
 
 func NewTracedDB(
@@ -19,11 +22,18 @@ func NewTracedDB(
 	tracer ITracer,
 	serviceName string,
 ) *TracedDB {
-
+	verbose := os.Getenv("TSQL_VERBOSE") == "true"
 	return &TracedDB{
 		tracer:      tracer,
 		DB:          db,
 		serviceName: serviceName,
+		verbose:     verbose,
+	}
+}
+
+func (db *TracedDB) logVerbose(query string, args ...interface{}) {
+	if db.verbose {
+		fmt.Printf("[TSQLX]\t %s %v\n", query, args)
 	}
 }
 
@@ -33,6 +43,7 @@ func (trDB *TracedDB) Get(
 	query string,
 	args ...interface{},
 ) error {
+	go trDB.logVerbose(query, args...)
 	start := time.Now()
 	err := trDB.DB.Get(dest, query, args...)
 	end := time.Now()
@@ -46,7 +57,7 @@ func (trDB *TracedDB) Get(
 			false,
 			start,
 			end,
-			map[string]string {
+			map[string]string{
 				"error": err.Error(),
 				"query": query,
 			},
@@ -67,13 +78,13 @@ func (trDB *TracedDB) Get(
 	return err
 }
 
-func (trDB *TracedDB) Select(	
+func (trDB *TracedDB) Select(
 	ctx context.Context,
 	dest interface{},
 	query string,
 	args ...interface{},
 ) error {
-
+	go trDB.logVerbose(query, args...)
 	start := time.Now()
 	err := trDB.DB.Select(dest, query, args...)
 	end := time.Now()
@@ -87,7 +98,7 @@ func (trDB *TracedDB) Select(
 			false,
 			start,
 			end,
-			map[string]string {
+			map[string]string{
 				"error": err.Error(),
 				"query": query,
 			},
@@ -113,7 +124,7 @@ func (trDB *TracedDB) Exec(
 	query string,
 	args ...interface{},
 ) (sql.Result, error) {
-
+	go trDB.logVerbose(query, args...)
 	start := time.Now()
 	res, err := trDB.DB.Exec(query, args...)
 	end := time.Now()
@@ -127,7 +138,7 @@ func (trDB *TracedDB) Exec(
 			false,
 			start,
 			end,
-			map[string]string {
+			map[string]string{
 				"error": err.Error(),
 				"query": query,
 			},
@@ -153,7 +164,7 @@ func (trDB *TracedDB) NamedExec(
 	query string,
 	arg interface{},
 ) (sql.Result, error) {
-
+	go trDB.logVerbose(query, arg)
 	start := time.Now()
 	res, err := trDB.DB.NamedExec(query, arg)
 	end := time.Now()
@@ -167,7 +178,7 @@ func (trDB *TracedDB) NamedExec(
 			false,
 			start,
 			end,
-			map[string]string {
+			map[string]string{
 				"error": err.Error(),
 				"query": query,
 			},
@@ -189,6 +200,7 @@ func (trDB *TracedDB) NamedExec(
 }
 
 func (db *TracedDB) Beginx() (*TracedTx, error) {
+
 	tx, err := db.DB.Beginx()
 	return &TracedTx{
 		Tx:          tx,
