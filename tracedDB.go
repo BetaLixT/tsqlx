@@ -32,9 +32,7 @@ func NewTracedDB(
 }
 
 func (db *TracedDB) logVerbose(query string, args ...interface{}) {
-	if db.verbose {
-		fmt.Printf("[TSQLX]\t %s %v\n", query, args)
-	}
+	fmt.Printf("[TSQLX]\t%\ts %s %v\n", time.Now().Format(time.RFC3339Nano), query, args)
 }
 
 func (trDB *TracedDB) Get(
@@ -43,7 +41,9 @@ func (trDB *TracedDB) Get(
 	query string,
 	args ...interface{},
 ) error {
-	go trDB.logVerbose(query, args...)
+	if trDB.verbose {
+		trDB.logVerbose(query, args)
+	}
 	start := time.Now()
 	err := trDB.DB.Get(dest, query, args...)
 	end := time.Now()
@@ -84,7 +84,9 @@ func (trDB *TracedDB) Select(
 	query string,
 	args ...interface{},
 ) error {
-	go trDB.logVerbose(query, args...)
+	if trDB.verbose {
+		trDB.logVerbose(query, args)
+	}
 	start := time.Now()
 	err := trDB.DB.Select(dest, query, args...)
 	end := time.Now()
@@ -124,7 +126,9 @@ func (trDB *TracedDB) Exec(
 	query string,
 	args ...interface{},
 ) (sql.Result, error) {
-	go trDB.logVerbose(query, args...)
+	if trDB.verbose {
+		trDB.logVerbose(query, args)
+	}
 	start := time.Now()
 	res, err := trDB.DB.Exec(query, args...)
 	end := time.Now()
@@ -164,7 +168,9 @@ func (trDB *TracedDB) NamedExec(
 	query string,
 	arg interface{},
 ) (sql.Result, error) {
-	go trDB.logVerbose(query, arg)
+	if trDB.verbose {
+		trDB.logVerbose(query, arg)
+	}
 	start := time.Now()
 	res, err := trDB.DB.NamedExec(query, arg)
 	end := time.Now()
