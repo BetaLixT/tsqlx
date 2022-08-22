@@ -32,7 +32,7 @@ func NewTracedDB(
 }
 
 func (db *TracedDB) logVerbose(query string, args ...interface{}) {
-	fmt.Printf("[TSQLX]\t%\ts %s %v\n", time.Now().Format(time.RFC3339Nano), query, args)
+	fmt.Printf("[TSQLX]\t%s\t %s %v\n", time.Now().Format(time.RFC3339Nano), query, args)
 }
 
 func (trDB *TracedDB) Get(
